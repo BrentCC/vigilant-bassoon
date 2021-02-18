@@ -1,0 +1,32 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+    part-number = "lastditch";
+
+    fragment@0 {
+        target = <&am33xx_pinmux>;
+        __overlay__ {
+            valversled: pinmux_valversled {
+                pinctrl-single,pins = <
+                            0x17c 0x2F  // GPIO1_31 Mode7, GPIO
+                            0x178 0x17  // GPIO1_31 Mode7, GPIO
+                              >;
+            };
+        };
+    };
+
+    fragment@1 {
+        target = <&ocp>;
+        __overlay__ {
+            valversled_helper {
+                compatible = "bone-pinmux-helper";
+                pinctrl-names = "default";
+                pinctrl-0 = <&valversled>;
+                status = "okay";
+            };
+        };
+    };
+};

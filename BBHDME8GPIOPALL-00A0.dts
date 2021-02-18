@@ -1,0 +1,208 @@
+/dts-v1/;
+/plugin/;
+ 
+/{
+    compatible = "ti,beaglebone", "ti,beaglebone-black", "ti,beaglebone-green";
+    part-number = "BBHDME8GPIOPALL";
+    version = "00A0";
+
+    fragment@0 {
+        target = <&am33xx_pinmux>;
+        __overlay__ {
+
+            bb_cc_1_pins: pinmux_bb_cc_1_pins {
+                pinctrl-single,pins = <  //0x17=output_pullup 0x27=input_pulldown 
+                         0x01c  0x2F  // P8_04   gpio1_7    fp1         hdme2 
+                         0x00c  0x2F  // P8_06   gpio1_3    sf1         hdme4     
+                >;
+            };
+            bb_cc_2_pins: pinmux_bb_cc_2_pins {
+                pinctrl-single,pins = <  //0x17=output_pullup 0x27=input_pulldown
+                         0x098  0x2F  // P8_10   gpio2_4    fp2         hdme8 
+                         0x030  0x2F  // P8_12   gpio1_12   sf2         hdme10 x buggy!
+                >;
+            };
+
+            bb_cc_3_pins: pinmux_bb_cc_3_pins {
+                    pinctrl-single,pins = <  //0x17=output_pullup 0x27=input_pulldown
+                         0x038  0x2F  // P8_16   gpio1_14   fp3         hdme14 x
+                         0x08c  0x2F  // P8_18   gpio2_1    sf3         hdme16 x
+                >;
+            };
+
+            bb_cc_4_pins: pinmux_bb_cc_4_pins {
+                    pinctrl-single,pins = <  //0x17=output_pullup 0x27=input_pulldown
+                         0x014  0x2F  // P8_22   gpio1_5    fp4         hdme20
+                         0x004  0x2F  // P8_24   gpio1_1    sf4         hdme22
+                >;
+            };
+
+            bb_cc_5_pins: pinmux_bb_cc_5_pins {
+                pinctrl-single,pins = <  //0x17=output_pullup 0x27=input_pulldown
+                     0x0e8  0x2F  // P8_28   gpio2_24   fp5         hdme26*
+                     0x0ec  0x2F  // P8_30   gpio2_25   sf5         hdme28
+                >;
+            };
+
+            bb_cc_6_pins: pinmux_bb_cc_6_pins {
+                pinctrl-single,pins = <  //0x17=output_pullup 0x27=input_pulldown
+                     0x0cc  0x2F  // P8_34   gpio2_17   fp6         hdme32
+                     0x0c8  0x2F  // P8_36   gpio2_16   sf6         hdme34
+                >;
+            };
+
+            bb_cc_7_pins: pinmux_bb_cc_7_pins {
+                pinctrl-single,pins = <  //0x17=output_pullup 0x27=input_pulldown
+                     0x0bc  0x2F  // P8_40   gpio2_13   fp7         hdme38
+                     0x0b4  0x2F  // P8_42   gpio2_11   sf7         hdme40
+                >;
+            };
+            bb_cc_8_pins: pinmux_bb_cc_8_pins {
+                pinctrl-single,pins = <  //0x17=output_pullup 0x27=input_pulldown
+                     0x048 0x2F   // P9_14   gpio1_18  sf8          hdme48
+                     0x04c 0x2F   // P9_16   gpio1_19  fp8          hdme50
+                >;
+            };
+
+/*
+            bb_cc_reset_pins: pinmux_bb_cc_reset_pins {
+                pinctrl-single,pins = <
+                     0x044  0x17  // P9_23   gpio1_17  reset        hdme51
+                >;
+            };
+*/
+            bb_cc_spi1_pins: pinmux_bb_spi1_pins {
+                pinctrl-single,pins = <
+                        0x044  0x7  // P9_23   gpio1_17  reset        hdme51
+                        0x094  0x17  // P8_08   gpio2_3    cs1         hdme6 
+                        0x028  0x17  //< P8_14  gpio0_26   cs2         hdme12 x
+                        0x084  0x17  // P8_20   gpio1_31   cs3         hdme18
+                        0x07c  0x17  //< P8_26  gpio1_29   cs4          hdme24 x
+                        0x0dc  0x17  // P8_32   gpio0_11   cs5         hdme30
+                        0x0c4  0x17  // P8_38   gpio2_15   cs6         hdme36
+                        0x0ac  0x17  // P8_44   gpio2_9    cs7         hdme42
+                        0x078 0x17   // P9_12   gpio1_28  cs8   hdme46
+                        0x198 0x13 // spi1_d1,    OUTPUT_PULLUP | MODE0
+                        0x194 0x33 // spi1_d0,   INPUT_PULLUP  | MODE0
+                        0x190 0x33 // spi1_sclk, INPUT_PULLUP  | MODE0
+                    >;
+                };
+        };
+    };
+
+    fragment@1 {
+        target = <&ocp>;
+        //target = <&spi1>;
+        __overlay__ {
+
+            spi1 {
+                compatible = "spi-gpio";
+                gpio-sck = <&gpio3 14 0>;
+                gpio-mosi = <&gpio3 16 0>;
+                gpio-miso = <&gpio3 15 0>;
+                num-chipselects = <8>;
+                #address-cells = <0x1>;
+                #size-cells = <0>; 
+
+                pinctrl-0 = <&bb_cc_spi1_pins>;
+
+/*                cs-gpios =  <&gpio1 28 0>, <&gpio2 3 0>, <&gpio0 26 0>,<&gpio1 31 0>,
+                            <&gpio1 29 0>,<&gpio0 11 0>, <&gpio2 15 0>,<&gpio2 9 0>;
+*/
+                cs-gpios =  <&gpio2 3 0>, <&gpio0 26 0>, <&gpio1 31 0>,<&gpio1 29 0>,
+                            <&gpio0 11 0>,<&gpio2 15 0>, <&gpio2 9 0>,<&gpio1 28 0>;
+
+
+                greset = <&gpio1 17 0>;
+
+                bbcca@1 {
+                    reg = <0>;      
+                    spi-max-frequency = <1000000>;
+                    compatible = "ti,cc2520";
+                    pinctrl-names = "default";
+                    pinctrl-0 = <&bb_cc_1_pins>;
+                    fp   = <&gpio1 7 0>;
+                    sfd   = <&gpio1 3 0>;
+                    ddr = <500>;
+                };
+
+                bbccb@2 {
+                    reg = <1>;      
+                    spi-max-frequency = <1000000>;
+                    compatible = "ti,cc2520";
+                    pinctrl-names = "default";
+                    pinctrl-0 = <&bb_cc_2_pins>;
+                    fp   = <&gpio2 4 0>;
+                    sfd   = <&gpio1 12 0>;
+                    ddr = <500>;
+                };
+
+                bbccc@3 {
+                    reg = <2>;      
+                    spi-max-frequency = <1000000>;
+                    compatible = "ti,cc2520";
+                    pinctrl-names = "default";
+                    pinctrl-0 = <&bb_cc_3_pins>;
+                    fp   = <&gpio1 14 0>;
+                    sfd   = <&gpio2 1 0>;
+                    ddr = <500>;
+                };
+
+                bbccd@4 {
+                    reg = <3>;      
+                    spi-max-frequency = <1000000>;
+                    compatible = "ti,cc2520";
+                    pinctrl-names = "default";
+                    pinctrl-0 = <&bb_cc_4_pins>;
+                    fp   = <&gpio1 5 0>;
+                    sfd   = <&gpio1 1 0>;
+                    ddr = <500>;
+                };
+
+                bbcce@5 {
+                    reg = <4>;      
+                    spi-max-frequency = <1000000>;
+                    compatible = "ti,cc2520";
+                    pinctrl-names = "default";
+                    pinctrl-0 = <&bb_cc_5_pins>;
+                    fp   = <&gpio2 24 0>;
+                    sfd   = <&gpio2 25 0>;
+                    ddr = <500>;
+                };
+
+                bbccf@6 {
+                    reg = <5>;      
+                    spi-max-frequency = <1000000>;
+                    compatible = "ti,cc2520";
+                    pinctrl-names = "default";
+                    pinctrl-0 = <&bb_cc_6_pins>;
+                    fp   = <&gpio2 17 0>;
+                    sfd   = <&gpio2 16 0>;
+                    ddr = <500>;
+                };
+
+                bbccg@7 {
+                    reg = <6>;      
+                    spi-max-frequency = <1000000>;
+                    compatible = "ti,cc2520";
+                    pinctrl-names = "default";
+                    pinctrl-0 = <&bb_cc_7_pins>;
+                    fp   = <&gpio2 13 0>;
+                    sfd   = <&gpio2 11 0>;
+                    ddr = <500>;
+                };
+
+                bbcch@8 {
+                    reg = <7>;      
+                    spi-max-frequency = <1000000>;
+                    compatible = "ti,cc2520";
+                    pinctrl-names = "default";
+                    pinctrl-0 = <&bb_cc_8_pins>;
+                    fp   = <&gpio1 19 0>;
+                    sfd   = <&gpio1 18 0>;
+                    ddr = <500>;
+                };
+            };
+        };
+    };
+};
